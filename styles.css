@@ -70,8 +70,13 @@ body {
   transform: translateY(-4px);
 }
 
+.cell[data-safest='true'] {
+  box-shadow: inset 0 0 0 2px white;
+}
+
 .cell[data-revealed="true"] {
   background-color: blanchedalmond;
+  box-shadow: 1px solid black;
 }
 
 .cell[data-value="B"] {
@@ -121,4 +126,8 @@ body {
 
 .cell[data-flagged='true'] {
   box-shadow: inset 0 0 0 2px blueviolet;
+}
+
+.cell[data-safest='true'] {
+  box-shadow: inset 0 0 0 2px white;
 }
