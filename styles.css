@@ -90,11 +90,13 @@ body {
   background-color: blanchedalmond;
 }
 
-
 .cell[data-value="B"] {
-  /* background-color: grey; */
-  /* background-color: darkgrey; */
   color: black;
+}
+
+.cell[data-revealed="true"][data-value="B"] {
+  background-color: red;
+  color: white;
 }
 
 .cell[data-value='0'] {
@@ -131,4 +133,8 @@ body {
 
 .cell[data-value='8'] {
   color: rgb(255, 255, 255);
+}
+
+.cell[data-flagged='true'] {
+  box-shadow: inset 0 0 0 2px blueviolet;
 }
