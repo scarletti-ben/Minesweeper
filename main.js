@@ -21,7 +21,7 @@ class Grid {
         this.safeCells = this.cells.filter(cell => cell.dataset.value !== 'B');
     }
 
-    // > Create 9x9 cells for the Minesweeper grid
+    // > Create the .cell elements for the Grid class object
     createCells() {
         let cells = [];
         for (let row = 1; row <= 9; row++) {
@@ -47,7 +47,7 @@ class Grid {
         return cells;
     }
 
-    // > Calculate adjacency value for a cell
+    // > Assign initial value to all cells based on adjacency
     assignValues() {
         let bombs = [];
         for (let cell of this.cells) {
@@ -65,13 +65,13 @@ class Grid {
         }
     }
 
-    // > Increment dataset.value for a cell
+    // > Increment dataset.value for a cell by 1
     incrementCell(cell) {
         let currentValue = Number(cell.dataset.value);
         cell.dataset.value = String(currentValue + 1);
     }
 
-    // > Get cell based on dataset.row and dataset.column
+    // > Get cell based on dataset.row and dataset.col
     getCell(row, col) {
         for (let cell of this.cells) {
             let r = Number(cell.dataset.row);
@@ -83,7 +83,7 @@ class Grid {
         return null;
     }
 
-    // > Get an array of all adjacent cells
+    // > Get an array of all adjacent cells for a given cell
     getAdjacentCells(cell) {
         const R = Number(cell.dataset.row);
         const C = Number(cell.dataset.col);
@@ -147,7 +147,7 @@ class Grid {
         if (remaining.length === 0) {
             setTimeout(() => {
                 alert("You won!");
-            }, 500);
+            }, 1500);
         }
     }
 
