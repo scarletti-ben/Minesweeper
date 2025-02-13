@@ -82,7 +82,7 @@ Cell colouring handled primarily via `CSS` selectors
 }
 ```
 
-Simple win condition check using filer for list comprehension
+Simple win condition check using filter for list comprehension
 ```javascript
 let remaining = this.safeCells.filter(cell => cell.dataset.revealed !== 'true');
 if (remaining.length === 0) {
