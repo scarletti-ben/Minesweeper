@@ -19,21 +19,24 @@ class Grid {
         this.cells = this.createCells();
         this.assignValues();
         this.safeCells = this.cells.filter(cell => cell.dataset.value !== 'B');
-        this.safestCell = this.getSafestCell();
-        this.safestCell.dataset.safest = 'true';
+        this.tagSafestCell();
     }
 
-    // > Find the cell with the highest number adjacent cells of value 0
-    getSafestCell() {
+    // > Find and tag cell with the highest number of adjacent cells of value 0
+    tagSafestCell() {
         let zeros = this.cells.filter(cell => cell.dataset.value == '0');
-        let map = new Map();
+        let safestCell;
+        let currentHighest = 0;
         for (let cell of zeros) {
             let adjacentCells = this.getAdjacentCells(cell);
             let adjacentZeros = adjacentCells.filter(cell => cell.dataset.value == '0');
-            map.set(cell, adjacentZeros);  
+            if (adjacentZeros.length > currentHighest) {
+                safestCell = cell;
+            }
         }
-        let safestCell = [...map].reduce((a, b) => a[1].length > b[1].length ? a : b)[0];
-        return safestCell;
+        if (safestCell) {
+            safestCell.dataset.safest = 'true';
+        }
     }
 
     // > Create the .cell elements for the Grid class object
