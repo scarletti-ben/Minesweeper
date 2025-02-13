@@ -7,29 +7,6 @@ const page = document.getElementById('page');
 const bombDecimal = 0.18;
 
 // < ========================================================
-// < Utility Functions
-// < ========================================================
-
-const tools = {
-
-    // > Ensure .hidden css applied to an element
-    hide(element) {
-        element.classList.add('hidden');
-    },
-
-    // > Ensure .hidden css not applied to an element 
-    show(element) {
-        element.classList.remove('hidden');
-    },
-
-    // > Toggle .hidden css for an element
-    toggle(element) {
-        element.classList.toggle('hidden');
-    },
-
-};
-
-// < ========================================================
 // < Grid Class (Custom Element)
 // < ========================================================
 
@@ -149,6 +126,7 @@ class Grid {
     // > Reveal value for a given cell as textContent
     revealCell(cell) {
         cell.dataset.revealed = 'true';
+        cell.dataset.flagged = 'false';
         cell.textContent = cell.dataset.value;
     }
 
@@ -188,26 +166,11 @@ class Grid {
 }
 
 // < ========================================================
-// < Document Listeners
-// < ========================================================
-
-// > Initialise event listeners
-function initListeners() {
-
-    // > Attach anonymous function call to document click event
-    document.addEventListener("click", () => {
-        
-    });
-
-}
-
-// < ========================================================
 // < Entry Point
 // < ========================================================
 
 // > Entry point of the application
 function main() {
-    initListeners();
     new Grid();
 }
 
