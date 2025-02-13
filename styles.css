@@ -8,7 +8,6 @@
   --scrollbar-slider: rgb(84, 93, 103);
   --scrollbar-gutter: transparent;
   --scrollbar-colour: var(--scrollbar-slider) var(--scrollbar-gutter);
-
   --size: 42px;
   --rows: 9;
   --cols: 9;
@@ -39,7 +38,6 @@ body {
   text-shadow: 0 0 1px rgba(255, 255, 255, 0.0);
 }
 
-
 #page {
   height: 100%;
   width: 100%;
@@ -66,7 +64,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* background-color: rgba(48, 48, 48, 0.6); */
   background-color: grey;
   border: 1px solid black;
   box-sizing: border-box;
@@ -77,7 +74,6 @@ body {
   font-size: 16px;
   user-select: none;
   cursor: pointer;
-  /* transition: all 0.2s ease-in-out; */
 }
 
 .cell:hover {

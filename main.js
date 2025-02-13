@@ -56,16 +56,13 @@ class Grid {
                 cell.dataset.value = Math.random() < bombDecimal ? 'B' : '0';
                 cell.dataset.revealed = 'false';
                 cell.dataset.flagged = 'false';
-
                 cell.addEventListener('click', (e) => {
                     this.check(cell);
                 });
-
                 cell.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     this.flag(cell);
                 });
-
                 this.element.appendChild(cell);
                 cells.push(cell);
             }
@@ -181,11 +178,9 @@ class Grid {
         if (cell.dataset.revealed !== 'true') {
             if (cell.dataset.flagged == 'true') {
                 cell.dataset.flagged = 'false';
-                console.log(1)
             }
             else {
                 cell.dataset.flagged = 'true';
-                console.log(2)
             }
         }
     }
