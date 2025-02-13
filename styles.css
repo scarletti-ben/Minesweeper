@@ -86,10 +86,15 @@ body {
   transform: translateY(-4px);
 }
 
+.cell[data-revealed="true"] {
+  background-color: blanchedalmond;
+}
+
+
 .cell[data-value="B"] {
   /* background-color: grey; */
-  background-color: darkgrey;
-  color: transparent;
+  /* background-color: darkgrey; */
+  color: black;
 }
 
 .cell[data-value='0'] {

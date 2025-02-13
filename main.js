@@ -79,7 +79,8 @@ class Grid {
         page.appendChild(this.element);
         this.cells = this.createCells();
         this.assignValues();
-        this.showValues();
+        // this.showValues();
+        this.safeCells = this.cells.filter(cell => cell.dataset.value !== 'B');
     }
 
     // > Get cell based on dataset.row and dataset.column
@@ -137,9 +138,50 @@ class Grid {
         }
     }
 
+    // > Reveal outward from a given cell
+    revealOutward(cell) {
+        if (cell.dataset.revealed == 'true') {
+            return;
+        }
+        else if (cell.dataset.value == 'B') {
+            return;
+        }
+        else if (Number(cell.dataset.value) > 0) {
+            cell.textContent = cell.dataset.value;
+            cell.dataset.revealed = 'true'
+            return;
+        }
+        else {
+            cell.textContent = cell.dataset.value;
+            cell.dataset.revealed = 'true'
+            let adjacentCells = this.getAdjacentCells(cell);
+            for (let cell of adjacentCells) {
+                this.revealOutward(cell);
+            }
+        }
+    }
+
     // > Calculate adjacency value for a cell
     calculateValue(cell) {
         cell.dataset.value = value;
+    }
+
+    // > Check a clicked cell
+    check(cell) {
+        if (cell.dataset.revealed == 'true') {
+            return
+        }
+        else if (cell.dataset.value == 'B') {
+            cell.textContent = cell.dataset.value;
+            setTimeout(() => {
+                console.log('Bomb')
+            }, 500);
+        }
+        else {
+            this.revealOutward(cell)
+        }
+        let remaining = this.safeCells.filter(cell => cell.dataset.revealed !== 'true');
+        console.log(remaining.length === 0);
     }
 
     // > Create 9x9 cells for the Minesweeper grid
@@ -154,7 +196,11 @@ class Grid {
                 cell.dataset.col = col;
                 cell.dataset.value = value;
                 cell.textContent = '';
+                cell.dataset.revealed = 'false';
                 this.element.appendChild(cell);
+                cell.addEventListener('click', () => {
+                    this.check(cell);
+                })
                 cells.push(cell);
             }
         }
@@ -167,6 +213,7 @@ class Grid {
             cell.textContent = cell.dataset.value;
         }
     }
+
 }
 
 // < ========================================================
