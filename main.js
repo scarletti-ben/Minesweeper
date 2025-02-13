@@ -30,8 +30,10 @@ class Grid {
         for (let cell of zeros) {
             let adjacentCells = this.getAdjacentCells(cell);
             let adjacentZeros = adjacentCells.filter(cell => cell.dataset.value == '0');
-            if (adjacentZeros.length > currentHighest) {
+            let value = adjacentZeros.length;
+            if (value > currentHighest) {
                 safestCell = cell;
+                currentHighest = value;
             }
         }
         if (safestCell) {
