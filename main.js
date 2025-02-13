@@ -182,6 +182,9 @@ class Grid {
         }
         let remaining = this.safeCells.filter(cell => cell.dataset.revealed !== 'true');
         console.log(remaining.length === 0);
+        if (remaining.length === 0) {
+            alert("You won!")
+        }
     }
 
     // > Create 9x9 cells for the Minesweeper grid
