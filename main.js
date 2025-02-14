@@ -21,6 +21,7 @@ class Grid {
         this.safeCells = this.cells.filter(cell => cell.dataset.value !== 'B');
         this.numberedCells = this.safeCells.filter(cell => Number(cell.dataset.value) > 0);
         this.safestCell = this.tagSafestCell();
+        this.element.dataset.mode = 'default';
     }
 
     // > Find and tag cell with the highest number of adjacent cells of value 0
@@ -43,30 +44,48 @@ class Grid {
         return safestCell;
     }
 
+    // > Add event listeners to a given cell
+    addListeners(cell) {
+        cell.addEventListener('click', (e) => {
+            this.check(cell);
+        });
+        cell.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            this.flag(cell);
+        });
+    }
+
+    // > Create a single .cell element
+    createCell(row, col) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.dataset.row = row;
+        cell.dataset.col = col;
+        cell.dataset.value = Math.random() < bombDecimal ? 'B' : '0';
+        cell.dataset.revealed = 'false';
+        cell.dataset.flagged = 'false';
+        this.setTextContent(cell, '');
+        this.addListeners(cell);
+        return cell
+    }
+
     // > Create the .cell elements for the Grid class object
     createCells() {
         let cells = [];
         for (let row = 1; row <= 9; row++) {
             for (let col = 1; col <= 9; col++) {
-                const cell = document.createElement("div");
-                cell.classList.add("cell");
-                cell.dataset.row = row;
-                cell.dataset.col = col;
-                cell.dataset.value = Math.random() < bombDecimal ? 'B' : '0';
-                cell.dataset.revealed = 'false';
-                cell.dataset.flagged = 'false';
-                cell.addEventListener('click', (e) => {
-                    this.check(cell);
-                });
-                cell.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    this.flag(cell);
-                });
+                let cell = this.createCell(row, col);
                 this.element.appendChild(cell);
                 cells.push(cell);
             }
         }
         return cells;
+    }
+
+    // > Set textContent for cell, and align with css dataset.text
+    setTextContent(cell, text) {
+        cell.textContent = text;
+        cell.dataset.text = text;
     }
 
     // > Assign initial value to all cells based on adjacency
@@ -149,7 +168,22 @@ class Grid {
     revealCell(cell) {
         cell.dataset.revealed = 'true';
         cell.dataset.flagged = 'false';
-        cell.textContent = cell.dataset.value;
+        this.setTextContent(cell, cell.dataset.value)
+    }
+
+    // > Get effective value of a cell based on adjacent flags
+    getEffectiveValue(cell) {
+        let value = cell.dataset.value;
+        let adjacent = this.getAdjacentCells(cell);
+        let flagged = adjacent.filter(cell => cell.dataset.flagged === 'true');
+        value -= flagged.length;
+        return value
+    }
+
+    // > Show effective value for a given cell as textContent
+    showEffectiveValue(cell) {
+        let value = this.getEffectiveValue(cell);
+        this.setTextContent(cell, value);
     }
 
     // > Check a clicked cell and run revealOutward if needed
@@ -274,6 +308,39 @@ function revealAll(grid) {
     }
 }
 
+function effectiveAll(grid) {
+    let numbered = grid.numberedCells;
+    let valid = numbered.filter(cell => cell.dataset.revealed == 'true');
+    for (cell of valid) {
+        grid.showEffectiveValue(cell);
+    }
+}
+
+function xrayOn(grid) {
+    grid.dataset.mode = 'xray';
+
+    let all = grid.cells;
+    for (let cell of all) {
+        grid.setTextContent(cell, '');
+    }
+
+    let numbered = grid.numberedCells;
+    let visibleNumbered = numbered.filter(cell => cell.dataset.revealed == 'true');
+    for (cell of visibleNumbered) {
+        let value = Number(cell.dataset.value);
+        let adjacent = grid.getAdjacentCells(cell);
+        let flagged = adjacent.filter(cell => cell.dataset.flagged == 'true');
+        value -= flagged.length;
+        grid.setTextContent(cell, value);
+    }
+
+    // let numbered = grid.numberedCells;
+    // let revealed = grid.cells.filter(cell => cell.dataset.revealed == 'true');
+    // let revealedNumbers = revealed.filter(cell => cell.dataset.value == 'true')
+    // this.safeCells.filter(cell => Number(cell.dataset.value) > 0);
+
+}
+
 // < ========================================================
 // < Entry Point
 // < ========================================================
@@ -286,6 +353,7 @@ function main() {
     tbc.createButton(0, "-", "", null);
     tbc.createButton(1, "S", "Solve", () => solveOnce(grid));
     tbc.createButton(2, "R", "Reveal", () => revealAll(grid));
+    tbc.createButton(3, "E", "Effective", () => effectiveAll(grid));
 
 }
 

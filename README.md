@@ -3,6 +3,19 @@
 ## Overview
 Project to recreate Minesweeper using pure HTML / CSS / JavaScript
 
+## Work in Progress
+Alter grid dataset to allow for different modes that `CSS` can respond to
+```css
+#grid[data-mode="default"] .cell[data-text="0"] {
+  color: transparent;
+}
+#grid[data-mode="xray"] .cell[data-text="0"] {
+  color: white;
+}
+```
+- Added `this.element.dataset.mode = 'default';` to the constructor of `Grid` class
+
+
 ## Features New to v0.2.0-beta
 Added a recommended starting cell or 'safest cell' that appears on load and finds the cell with the greatest number of adjacent '0' cells
 
