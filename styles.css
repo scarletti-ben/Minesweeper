@@ -76,7 +76,7 @@ body {
   box-shadow: 1px solid black;
 }
 
-.cell[data-flagged='true'] {
+#grid[data-mode="default"] .cell[data-flagged='true'] {
   box-shadow: inset 0 0 0 2px blueviolet;
 }
 
@@ -119,7 +119,11 @@ body {
 
 .cell[data-revealed="false"][data-safest='true'] {
   box-shadow: inset 0 0 0 2px white;
-} 
+}
+
+#grid[data-mode="xray"] .cell[data-insightful="false"] {
+  background-color: var(--background-colour);
+}
 
 #toolbar-container {
   width: 32px;

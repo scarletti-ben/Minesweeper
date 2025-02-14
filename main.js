@@ -5,6 +5,7 @@
 const DEBUG = 0;
 const page = document.getElementById('page');
 const bombDecimal = 0.18;
+let grid;
 
 // < ========================================================
 // < Grid Class (Custom Element)
@@ -22,7 +23,7 @@ class Grid {
         this.numberedCells = this.safeCells.filter(cell => Number(cell.dataset.value) > 0);
         this.safestCell = this.tagSafestCell();
         this.element.dataset.mode = 'default';
-    }
+    } 
 
     // > Find and tag cell with the highest number of adjacent cells of value 0
     tagSafestCell() {
@@ -64,6 +65,7 @@ class Grid {
         cell.dataset.value = Math.random() < bombDecimal ? 'B' : '0';
         cell.dataset.revealed = 'false';
         cell.dataset.flagged = 'false';
+        cell.dataset.insightful = 'false';
         this.setTextContent(cell, '');
         this.addListeners(cell);
         return cell
@@ -173,11 +175,11 @@ class Grid {
 
     // > Get effective value of a cell based on adjacent flags
     getEffectiveValue(cell) {
-        let value = cell.dataset.value;
+        let value = Number(cell.dataset.value);
         let adjacent = this.getAdjacentCells(cell);
         let flagged = adjacent.filter(cell => cell.dataset.flagged === 'true');
         value -= flagged.length;
-        return value
+        return value;
     }
 
     // > Show effective value for a given cell as textContent
@@ -316,29 +318,52 @@ function effectiveAll(grid) {
     }
 }
 
+// > Switch to xray mode and control insight for grid cells
 function xrayOn(grid) {
-    grid.dataset.mode = 'xray';
+    grid.element.dataset.mode = 'xray';
 
-    let all = grid.cells;
-    for (let cell of all) {
-        grid.setTextContent(cell, '');
+    let allCells = grid.cells;
+    for (let cell of allCells) {
+        cell.dataset.insightful = 'false';
     }
 
-    let numbered = grid.numberedCells;
-    let visibleNumbered = numbered.filter(cell => cell.dataset.revealed == 'true');
-    for (cell of visibleNumbered) {
-        let value = Number(cell.dataset.value);
-        let adjacent = grid.getAdjacentCells(cell);
-        let flagged = adjacent.filter(cell => cell.dataset.flagged == 'true');
-        value -= flagged.length;
-        grid.setTextContent(cell, value);
+    let validCells = grid.numberedCells.filter(cell => cell.dataset.revealed == 'true');
+    for (cell of validCells) {
+        let effectiveValue = grid.getEffectiveValue(cell);
+        grid.setTextContent(cell, effectiveValue);
+        if (effectiveValue > 0) {
+            cell.dataset.insightful = 'true';
+        }
+        let adjacentCells = grid.getAdjacentCells(cell);
+
+        for (let adjacentCell of adjacentCells) {
+            if (adjacentCell.dataset.revealed == 'false' && adjacentCell.dataset.flagged == 'false') {
+                adjacentCell.dataset.insightful = 'true';
+            }
+        }
     }
+}
 
-    // let numbered = grid.numberedCells;
-    // let revealed = grid.cells.filter(cell => cell.dataset.revealed == 'true');
-    // let revealedNumbers = revealed.filter(cell => cell.dataset.value == 'true')
-    // this.safeCells.filter(cell => Number(cell.dataset.value) > 0);
+// > Switch to default mode and clear insight
+function xrayOff(grid) {
+    grid.element.dataset.mode = 'default';
+    let allCells = grid.cells;
+    for (let cell of allCells) {
+        cell.dataset.insightful = 'false';
+        if (cell.dataset.revealed == 'true') {
+            grid.setTextContent(cell, cell.dataset.value);
+        }
+    }
+}
 
+// > Toggle xray mode on or off
+function toggleXray(grid) {
+    if (grid.element.dataset.mode == 'default') {
+        xrayOn(grid);
+    }
+    else {
+        xrayOff(grid);
+    }
 }
 
 // < ========================================================
@@ -347,13 +372,19 @@ function xrayOn(grid) {
 
 // > Entry point of the application
 function main() {
-    let grid = new Grid();
+
+    grid = new Grid();
 
     let tbc = new ToolbarContainer();
     tbc.createButton(0, "-", "", null);
     tbc.createButton(1, "S", "Solve", () => solveOnce(grid));
     tbc.createButton(2, "R", "Reveal", () => revealAll(grid));
     tbc.createButton(3, "E", "Effective", () => effectiveAll(grid));
+    tbc.createButton(4, "X", "Toggle xray", () => toggleXray(grid));
+
+    document.addEventListener('keydown', (e) => {
+        toggleXray(grid);
+    })
 
 }
 
