@@ -3,6 +3,16 @@
 ## Overview
 Project to recreate Minesweeper using pure HTML / CSS / JavaScript
 
+## Features New to v0.2.0-beta
+Added a recommended starting cell or 'safest cell' that appears on load and finds the cell with the greatest number of adjacent '0' cells
+
+Added a toolbar to run functions, allowing use on desktop and mobile
+
+Added solving function that currently does a single pass to assign flags, and then 'click' any cells deduced to be definitely safe
+  - This function does not have complex solving capabilities, one example is that it does not know to logically deduce a `1-2-1`
+
+Added a revealing function to reveal all cells, useful for debugging
+
 ## Features for v0.1.0-alpha
 Generation of a 9x9 grid as a custom element `class Grid`, where if instantiating via `let grid = new Grid()` you would find `grid.element` to be the `#grid` element in the `DOM`
 

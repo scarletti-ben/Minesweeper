@@ -232,11 +232,11 @@ class ToolbarContainer {
 // ! ========================================================
 
 /**
- * Solves the Minesweeper grid by clicking the safest cell.
+ * > Run a single pass to assign flags, then logically deduce safe cells
  *
- * @param {Grid} grid - An instance of the Grid class representing the Minesweeper grid.
+ * @param {Grid} grid - Grid object
  */
-function solve(grid) {
+function solveOnce(grid) {
     let revealedNumbers = grid.numberedCells.filter(cell => cell.dataset.revealed == 'true');
 
     for (let cell of revealedNumbers) {
@@ -263,6 +263,11 @@ function solve(grid) {
     }
 }
 
+/**
+ * > Reveal all cells in the grid
+ *
+ * @param {Grid} grid - Grid object
+ */
 function revealAll(grid) {
     for (cell of grid.cells) {
         grid.revealCell(cell)
@@ -279,14 +284,9 @@ function main() {
 
     let tbc = new ToolbarContainer();
     tbc.createButton(0, "-", "", null);
-    tbc.createButton(1, "S", "Solve", () => solve(grid));
+    tbc.createButton(1, "S", "Solve", () => solveOnce(grid));
     tbc.createButton(2, "R", "Reveal", () => revealAll(grid));
 
-    // let start = grid.safestCell;
-    // start.click();
-    document.addEventListener('keydown', () => {
-        solve(grid);
-    })
 }
 
 // < ========================================================
