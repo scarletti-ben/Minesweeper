@@ -19,7 +19,8 @@ class Grid {
         this.cells = this.createCells();
         this.assignValues();
         this.safeCells = this.cells.filter(cell => cell.dataset.value !== 'B');
-        this.tagSafestCell();
+        this.numberedCells = this.safeCells.filter(cell => Number(cell.dataset.value) > 0);
+        this.safestCell = this.tagSafestCell();
     }
 
     // > Find and tag cell with the highest number of adjacent cells of value 0
@@ -39,6 +40,7 @@ class Grid {
         if (safestCell) {
             safestCell.dataset.safest = 'true';
         }
+        return safestCell;
     }
 
     // > Create the .cell elements for the Grid class object
@@ -186,12 +188,105 @@ class Grid {
 }
 
 // < ========================================================
+// < Toolbar Class (Custom Element)
+// < ========================================================
+
+// > Custom #toolbar-container, with .toolbar-row children
+class ToolbarContainer {
+    constructor() {
+        this.element = document.getElementById('toolbar-container');
+    }
+
+    // > Add row to the toolbar
+    addRow() {
+        let row = document.createElement('div');
+        row.className = 'toolbar-row';
+        this.element.appendChild(row);
+    }
+
+    // > Create and add a button to a given row index
+    createButton(rowIndex, text, title, onClick = null) {
+        let rows = this.element.children.length;
+        if (rowIndex >= rows) {
+            let needed = rowIndex - rows;
+            for (let i = 0; i <= needed; i++) {
+                this.addRow();
+            }
+        }
+        const row = this.element.children[rowIndex];
+        let button = document.createElement('div');
+        button.className = 'toolbar-button';
+        button.title = title;
+        button.textContent = text;
+        if (onClick) {
+            button.addEventListener('click', (e) => {
+                onClick(e);
+            });
+        }
+        row.appendChild(button);
+    }
+}
+
+// ! ========================================================
+// ! Experimental
+// ! ========================================================
+
+/**
+ * Solves the Minesweeper grid by clicking the safest cell.
+ *
+ * @param {Grid} grid - An instance of the Grid class representing the Minesweeper grid.
+ */
+function solve(grid) {
+    let revealedNumbers = grid.numberedCells.filter(cell => cell.dataset.revealed == 'true');
+
+    for (let cell of revealedNumbers) {
+        let number = Number(cell.dataset.value);
+        let adjacentCells = grid.getAdjacentCells(cell);
+        let hidden = adjacentCells.filter(cell => cell.dataset.revealed == 'false');
+        console.log(`${number} ${hidden.length}`)
+        if (number === hidden.length) {
+            for (let adjacentCell of hidden) {
+                adjacentCell.dataset.flagged = 'true';
+                adjacentCell.dataset.cause = `C${cell.dataset.col}R${cell.dataset.row}`
+            }
+        }
+
+        let flagged = hidden.filter(cell => cell.dataset.flagged == 'true');
+        if (number === flagged.length) {
+            for (let h of hidden) {
+                if (h.dataset.flagged == 'false') {
+                    h.click();
+                }
+            }
+        }
+
+    }
+}
+
+function revealAll(grid) {
+    for (cell of grid.cells) {
+        grid.revealCell(cell)
+    }
+}
+
+// < ========================================================
 // < Entry Point
 // < ========================================================
 
 // > Entry point of the application
 function main() {
-    new Grid();
+    let grid = new Grid();
+
+    let tbc = new ToolbarContainer();
+    tbc.createButton(0, "-", "", null);
+    tbc.createButton(1, "S", "Solve", () => solve(grid));
+    tbc.createButton(2, "R", "Reveal", () => revealAll(grid));
+
+    let start = grid.safestCell;
+    start.click();
+    document.addEventListener('keydown', () => {
+        solve(grid);
+    })
 }
 
 // < ========================================================
