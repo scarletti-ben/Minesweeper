@@ -282,8 +282,8 @@ function main() {
     tbc.createButton(1, "S", "Solve", () => solve(grid));
     tbc.createButton(2, "R", "Reveal", () => revealAll(grid));
 
-    let start = grid.safestCell;
-    start.click();
+    // let start = grid.safestCell;
+    // start.click();
     document.addEventListener('keydown', () => {
         solve(grid);
     })
