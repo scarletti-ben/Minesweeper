@@ -4,7 +4,11 @@
 
 const DEBUG = 0;
 const page = document.getElementById('page');
+const clock = document.getElementById('clock');
+const bombCounter = document.getElementById('bomb-counter');
+const refreshButton = document.getElementById('refresh-button');
 const bombDecimal = 0.18;
+let seconds = 0;
 let grid;
 
 // < ========================================================
@@ -20,10 +24,11 @@ class Grid {
         this.cells = this.createCells();
         this.assignValues();
         this.safeCells = this.cells.filter(cell => cell.dataset.value !== 'B');
+        this.bombCells = this.cells.filter(cell => cell.dataset.value === 'B');
         this.numberedCells = this.safeCells.filter(cell => Number(cell.dataset.value) > 0);
         this.safestCell = this.tagSafestCell();
         this.element.dataset.mode = 'default';
-    } 
+    }
 
     // > Find and tag cell with the highest number of adjacent cells of value 0
     tagSafestCell() {
@@ -52,7 +57,18 @@ class Grid {
         });
         cell.addEventListener('contextmenu', (e) => {
             e.preventDefault();
-            this.flag(cell);
+            if (e.pointerType !== "touch") {
+                this.toggleFlag(cell);
+            }
+        });
+        cell.addEventListener("touchstart", (e) => {
+            cell.longPressTimeout = setTimeout(() => {
+                console.log("Long press");
+                this.toggleFlag(cell);
+            }, 400);
+        });
+        cell.addEventListener("touchend", (e) => {
+            clearTimeout(cell.longPressTimeout);
         });
     }
 
@@ -68,7 +84,7 @@ class Grid {
         cell.dataset.insightful = 'false';
         this.setTextContent(cell, '');
         this.addListeners(cell);
-        return cell
+        return cell;
     }
 
     // > Create the .cell elements for the Grid class object
@@ -169,7 +185,7 @@ class Grid {
     // > Reveal value for a given cell as textContent
     revealCell(cell) {
         cell.dataset.revealed = 'true';
-        cell.dataset.flagged = 'false';
+        this.toggleFlag(cell, 'false');
         this.setTextContent(cell, cell.dataset.value)
     }
 
@@ -204,21 +220,34 @@ class Grid {
         let remaining = this.safeCells.filter(cell => cell.dataset.revealed !== 'true');
         if (remaining.length === 0) {
             setTimeout(() => {
-                alert("You won!");
-            }, 1500);
+                let nBombs = this.bombCells.length;
+                let score = (nBombs / seconds).toFixed(2);
+                alert(`You won in ${seconds} seconds! You avoided ${nBombs} bombs, with a score of ${score} bombs per second!`);
+            }, 1000);
         }
     }
 
-    // > Add or remove a flag from a given cell
-    flag(cell) {
-        if (cell.dataset.revealed !== 'true') {
-            if (cell.dataset.flagged == 'true') {
-                cell.dataset.flagged = 'false';
-            }
-            else {
-                cell.dataset.flagged = 'true';
-            }
+    // > Update #bomb-counter for given grid cells
+    updateBombCounter() {
+        let flaggedCells = this.cells.filter(cell => cell.dataset.flagged === 'true');
+        let nFlags = flaggedCells.length;
+        let nBombs = this.bombCells.length;
+        bombCounter.innerText = nBombs - nFlags;
+    }
+
+    // > Toggle 'flagged' attribute for a given cell, optionally force state
+    toggleFlag(cell, state = null) {
+        if (cell.dataset.revealed == 'true') {
+            return;
         }
+        if (state) {
+            cell.dataset.flagged = state;
+        } else if (cell.dataset.flagged == 'true') {
+            cell.dataset.flagged = 'false';
+        } else {
+            cell.dataset.flagged = 'true';
+        }
+        this.updateBombCounter();
     }
 
 }
@@ -282,7 +311,7 @@ function solveOnce(grid) {
         console.log(`${number} ${hidden.length}`)
         if (number === hidden.length) {
             for (let adjacentCell of hidden) {
-                adjacentCell.dataset.flagged = 'true';
+                grid.toggleFlag(adjacentCell, 'true');
                 adjacentCell.dataset.cause = `C${cell.dataset.col}R${cell.dataset.row}`
             }
         }
@@ -374,6 +403,7 @@ function toggleXray(grid) {
 function main() {
 
     grid = new Grid();
+    grid.updateBombCounter();
 
     let tbc = new ToolbarContainer();
     tbc.createButton(0, "-", "", null);
@@ -382,9 +412,19 @@ function main() {
     tbc.createButton(3, "E", "Effective", () => effectiveAll(grid));
     tbc.createButton(4, "X", "Toggle xray", () => toggleXray(grid));
 
+    refreshButton.addEventListener('click', (e) => location.reload());
+
     document.addEventListener('keydown', (e) => {
         toggleXray(grid);
     })
+
+    
+    setInterval(() => {
+        seconds++;
+        let minutes = Math.floor(seconds / 60);
+        let secs = seconds % 60;
+        clock.textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }, 1000);
 
 }
 
